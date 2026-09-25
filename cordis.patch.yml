@@ -1,0 +1,24 @@
+# dsh-worktree bundle patch.
+#
+# The bundle channel mounts this plugin by appending the row below to the
+# profile's composed tree. Nothing else is required: the package has no runtime
+# dependency, no build step, and no install script.
+#
+# Tunables live on this row (all optional, see README.md):
+#
+#   config:
+#     worktreeDir: .dsh/worktrees     # where created worktrees live (relative to the MAIN checkout, or absolute)
+#     branchPrefix: worktree-         # branch name prefix
+#     baseRef: HEAD                   # commit-ish a new worktree branches from
+#     excludeFromGit: true            # add the worktree directory to .git/info/exclude
+#     conventionFile: dsh-worktree.json  # the project's own worktree setup file, at the repository root
+#     pollMs: 15000                   # client refresh interval; 0 disables polling
+#
+# A project declares what its worktrees need in that convention file, so this
+# bundle ships no project's layout:
+#
+#   { "link": [".venv", "database"], "linkIgnored": ["data"], "setup": "uv sync --dev" }
+#
+- insert:
+    - id: worktree
+      name: 'dsh-worktree'

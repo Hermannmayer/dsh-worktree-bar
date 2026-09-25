@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Worktree",
+    "description": "Shows the repository, branch and diff totals above the composer, and opens an isolated git worktree session in one click."
+  }
+}

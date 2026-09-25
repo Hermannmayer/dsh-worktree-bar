@@ -1,0 +1,41 @@
+# Verify the bundle on every push and pull request.
+#
+# The plugin has no dependency to install and no build step, so this workflow is
+# the whole check: parse every source file, then run the four suites. Each suite
+# builds and removes its own throwaway repositories under the runner's temp
+# directory, so nothing outside the checkout is touched.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The plugin targets the Node the harness bundles, and the platforms a
+        # DSH profile runs on; the Git layer's path handling differs on Windows.
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Configure git for the throwaway repositories
+        run: |
+          git config --global user.email "ci@example.com"
+          git config --global user.name "CI"
+      - name: Parse every source file
+        run: npm run check
+      - name: Run the suites
+        run: npm test

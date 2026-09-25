@@ -1,0 +1,20 @@
+# One text convention for every platform: committed files are LF.
+#
+# This plugin is authored on Windows and installed on Windows, Linux and macOS
+# profiles, and DSH reads its JavaScript, YAML and JSON directly — a CRLF working
+# copy would still run, but line endings that flip per machine make reviews and
+# diffs noisy for no benefit.
+* text=auto eol=lf
+
+# Windows-only fixtures, if any are ever added, keep their endings.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets are never converted.
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+
+# Keep the GitHub language bar honest about this being a JavaScript plugin.
+*.md linguist-documentation

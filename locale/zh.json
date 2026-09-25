@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Worktree",
+    "description": "输入框上方显示仓库、分支和改动统计，一键在隔离的 git worktree 中开启新会话。"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "dsh-worktree",
+  "version": "0.1.0",
+  "description": "Workspace and branch status above the composer, a start-screen git worktree checkbox, and per-project worktree preparation — for the DeepSeek Harness Web UI.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Hermannmayer",
+  "homepage": "https://github.com/Hermannmayer/dsh-worktree#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hermannmayer/dsh-worktree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hermannmayer/dsh-worktree/issues"
+  },
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.1.7-rc.1 <0.2.0"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "deepseek-harness",
+    "worktree",
+    "git",
+    "plugin"
+  ],
+  "scripts": {
+    "test": "node test/git.test.mjs && node test/seed.test.mjs && node test/host.test.mjs && node test/client.test.mjs",
+    "check": "node --check lib/plugin.js && node --check client.js && node --check lib/git.js"
+  },
+  "meta": {
+    "title": "Worktree",
+    "description": "Shows the workspace and branch above the composer, and starts a session in an isolated git worktree."
+  },
+  "exports": {
+    ".": "./lib/plugin.js",
+    "./client": "./client.js",
+    "./git": "./lib/git.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "icon": "./icon.svg",
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "test/*.mjs",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    },
+    "manifestVersion": 1
+  }
+}

@@ -1,0 +1,17 @@
+# Dependencies and caches this project never commits.
+node_modules/
+.pnpm-store/
+
+# Local runtime artifacts a plugin profile or editor may leave behind.
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editor and tool state.
+.vscode/
+.idea/
+*.swp
+
+# A packed copy of the bundle, if someone builds one here.
+*.tgz
