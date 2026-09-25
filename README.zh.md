@@ -3,7 +3,7 @@ description: "Harness Web UI 输入框上方的仓库状态行：会话真正运
 kind: "package-reference"
 ---
 
-# dsh-worktree
+# dsh-worktree-bar
 
 [English](README.md) | 中文
 
@@ -16,7 +16,7 @@ kind: "package-reference"
 
 仓库自己声明一个可用的 worktree 需要什么——虚拟环境、数据库目录、本地缓存——写在它自己的约定文件里。插件不硬编码任何项目的布局，因此同一个 bundle 既能服务「必须在 worktree 里跑起来」的 Python 项目，也能服务只需要 `npm install` 的 Node 项目，以及什么都不需要的仓库。
 
-本 bundle 完全独立：无运行时依赖、无构建步骤、不耦合任何其他插件。它是一个 Cordis bundle（`dsh.bundle.patch`），由 Host 半边和浏览器半边组成；其 Git 层（`dsh-worktree/git`）是普通模块，其他插件可以直接引入。
+本 bundle 完全独立：无运行时依赖、无构建步骤、不耦合任何其他插件。它是一个 Cordis bundle（`dsh.bundle.patch`），由 Host 半边和浏览器半边组成；其 Git 层（`dsh-worktree-bar/git`）是普通模块，其他插件可以直接引入。
 
 ## 目录
 
@@ -37,10 +37,10 @@ kind: "package-reference"
 用 Harness CLI 直接从 GitHub 安装：
 
 ```bash
-dsh plugin --profile desktop install Hermannmayer/dsh-worktree
+dsh plugin --profile desktop install Hermannmayer/dsh-worktree-bar
 ```
 
-这是给其他使用者的推荐路径：CLI 在 profile 目录中通过 pnpm 解析 `owner/repo`、安装该 bundle，重启后即可使用。把 `desktop` 换成你自己的 profile 名。
+这是给其他使用者的推荐路径：CLI 在 profile 目录中通过 pnpm 解析 `owner/repo`、安装该 bundle，重启后即可使用。把 `desktop` 换成你自己的 profile 名。没有全局 CLI 时，同一条命令可以写成 `npx @deepseek-ai/dsh plugin --profile desktop install Hermannmayer/dsh-worktree-bar`。
 
 在会话里也可以用 `plugin_manager` 工具从本地检出安装同一个 bundle：
 
@@ -48,7 +48,7 @@ dsh plugin --profile desktop install Hermannmayer/dsh-worktree
 plugin_manager action=install_bundle target=<本包的绝对路径>
 ```
 
-两种方式都会把该目录 link 进 profile（profile 的 `package.json` 里出现 `link:`，`dsh.profile.bundles` 追加 `dsh-worktree`），源码可以继续放在任何位置，profile 不需要手改。行 id 是 `worktree`；浏览器半边不需要单独安装。
+两种方式都会把该目录 link 进 profile（profile 的 `package.json` 里出现 `link:`，`dsh.profile.bundles` 追加 `dsh-worktree-bar`），源码可以继续放在任何位置，profile 不需要手改。行 id 是 `worktree`；浏览器半边不需要单独安装。
 
 之后修改源码遵循 Harness 对所有插件的规则：**Client** 改动在下次页面加载时生效，**Host** 改动需要重启——被替换的包只有在启动时才会加载新的 JavaScript 模块。
 
@@ -59,8 +59,8 @@ plugin_manager action=install_bundle target=<本包的绝对路径>
 本包没有任何运行时依赖或开发依赖，检出后无需安装即可开发：
 
 ```bash
-git clone https://github.com/Hermannmayer/dsh-worktree.git
-cd dsh-worktree
+git clone https://github.com/Hermannmayer/dsh-worktree-bar.git
+cd dsh-worktree-bar
 npm test        # 四套用例：Git 层、初始化、Host 路由、Client 渲染
 npm run check   # 对每个源文件执行 node --check
 ```
@@ -142,7 +142,7 @@ plugin_manager action=install_bundle target=<检出目录的绝对路径>
 
 ```yaml
 - id: worktree
-  name: 'dsh-worktree'
+  name: 'dsh-worktree-bar'
   config:
     worktreeDir: ../worktrees
     conventionFile: .worktree-setup.json
@@ -172,7 +172,7 @@ Host 空闲时不做任何事：无文件监听、无定时器、无缓存。每
 | 路径 | 职责 |
 |---|---|
 | [`lib/plugin.js`](lib/plugin.js) | Host 行：`apply`、`/dsh-worktree/api` 路由表、准入、会话目录解析、交给操作系统的动作。 |
-| [`lib/git.js`](lib/git.js) | 与上下文无关的 Git 层：仓库信息、worktree 列表/创建/移除、项目约定、初始化、远端 URL 与名称生成。可作为 `dsh-worktree/git` 引入。 |
+| [`lib/git.js`](lib/git.js) | 与上下文无关的 Git 层：仓库信息、worktree 列表/创建/移除、项目约定、初始化、远端 URL 与名称生成。可作为 `dsh-worktree-bar/git` 引入。 |
 | [`client.js`](client.js) | 浏览器半边：`conversation.input.dock` 条目——开始界面复选框、对话状态行、菜单与语言字典。 |
 | [`index.js`](index.js) | Host 行的再导出，方便按惯例寻找入口文件的读者。 |
 | [`test/*.test.mjs`](test) | Git 层、初始化、Host 路由表与 Client 渲染四套用例，`npm test` 直接运行（无测试框架）。 |
@@ -195,6 +195,18 @@ Host 空闲时不做任何事：无文件监听、无定时器、无缓存。每
 
 Harness 在会话创建时就固定其工作目录：Workspace 注册表无法搬移活会话，`ctx.sessions.create({ workspaceId })` 是把会话放进某个目录的唯一方式。因此只有开始界面能让「在 worktree 里工作」意味着「这个会话」。插件通过插槽自带的 `useSession` 钩子读 `session.blank` / `session.promptAttempted` 来判断自己是否在这个界面上。勾选执行 Harness 允许的两步：创建检出，然后在其中打开会话。一旦有了提问，会话就无法搬移，这一行随之变成信息，而移除操作移到两种形态都存在的分支菜单里。
 
+### 哪些名字故意保持原样
+
+包名现在叫 `dsh-worktree-bar`，但有三处刻意不改，因为改了会破坏使用者手上已有的东西：
+
+| 名字 | 为什么保留 |
+|---|---|
+| 路由路径 `POST /dsh-worktree/api/<method>` | 它是 Client 与 Host 之间的共享契约。Client 半边每次页面加载都会重新下发，而 Host 模块要活到重启，改了前缀会让两者在中间这段时间里对不上。 |
+| 约定文件 `dsh-worktree.json` | 它是**你的仓库**里的文件，可能已经提交。这个文件名描述的是概念，不是本包；不该因为插件改了包名就让项目去改文件名。 |
+| `.git/info/exclude` 里的标记（`# dsh-worktree`）与 `dshwt-` 类名前缀 | 它们已经被写进仓库文件与样式表；改名只会产生重复的块，而它们对使用者不可见。 |
+
+凡是人会输入或读到的东西——包名、安装命令、仓库地址、语言命名空间、`dsh-worktree-bar/git` 子路径、`info` 里的身份——都已经是新名字。
+
 ### 布局锚点
 
 `git rev-parse --show-toplevel` 回答的是「目录所在的那个检出」，在链接 worktree 内就是该 worktree 本身。因此所有布局决策都锚定**主检出**——`git worktree list` 保证它列在第一条——于是已经在 worktree 里的会话会把新 worktree 建在同一处的兄弟位置，`info` 里的 `repoRoot` 也始终表示用户启动时的那个仓库。路径同一性比较使用 realpath 规范化形式，因为 Windows 短名（`C:\PROGRA~1`）与长名是同一个目录。
@@ -205,7 +217,7 @@ junction 是目录重解析点：`git worktree remove` 会删除检出内的文�
 
 ### Client 注册
 
-浏览器半边注册一个懒加载模块（`dsh.client.platform: web`、`immediately: true`），并通过 `ctx.slots.inject('conversation.input.dock', …)` 在 `order: 30` 贡献条目，排在自带的 todo / goal / queue 之后。它用输入框自身的布局变量（`--dsh-composer-card-max-width`、`--dsh-composer-side-clearance`、`--dsh-composer-dock-inset`）确定宽度，从而与输入卡片对齐，而不是铺满整个会话列。它会等待 `slots`、`locale`、`workspaces` 与 `uiWorkspace`，且不引入任何 Harness Client 包：React 来自模块表，颜色只取 `--dsw-alias-*` token，文案注册在自己的 `dsh-worktree` 语言命名空间（`en`、`zh`）。Host 行对外暴露 `dsh-worktree/git` 供其他插件复用；不依赖任何其他插件。
+浏览器半边注册一个懒加载模块（`dsh.client.platform: web`、`immediately: true`），并通过 `ctx.slots.inject('conversation.input.dock', …)` 在 `order: 30` 贡献条目，排在自带的 todo / goal / queue 之后。它用输入框自身的布局变量（`--dsh-composer-card-max-width`、`--dsh-composer-side-clearance`、`--dsh-composer-dock-inset`）确定宽度，从而与输入卡片对齐，而不是铺满整个会话列。它会等待 `slots`、`locale`、`workspaces` 与 `uiWorkspace`，且不引入任何 Harness Client 包：React 来自模块表，颜色只取 `--dsw-alias-*` token，文案注册在自己的 `dsh-worktree-bar` 语言命名空间（`en`、`zh`）。Host 行对外暴露 `dsh-worktree-bar/git` 供其他插件复用；不依赖任何其他插件。
 
 </details>
 

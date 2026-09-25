@@ -1,5 +1,5 @@
 /**
- * dsh-worktree — Client half.
+ * dsh-worktree-bar — Client half.
  *
  * One row above the composer card (`conversation.input.dock`) that changes with
  * the Session it belongs to:
@@ -23,20 +23,27 @@
  *   from the loader; no Harness Client package is imported.
  * - Only `--dsw-alias-*` theme tokens decide colors, and the row sizes itself
  *   with the composer's own layout variables so it lines up with the card.
- * - Visible copy lives in this plugin's `dsh-worktree` locale namespace.
+ * - Visible copy lives in this plugin's `dsh-worktree-bar` locale namespace.
  * - Nothing runs while idle: one `info` request on mount, then a slow poll that
  *   pauses whenever the page is hidden or there is no repository.
  */
 
 window.__ModuleLoader__.load({
-  id: 'dsh-worktree',
+  id: 'dsh-worktree-bar',
   factory(require) {
     const React = require('react')
     const h = React.createElement
 
     /** Locale namespace owned by this plugin. */
-    const NS = 'dsh-worktree'
-    /** Host route prefix registered by `lib/plugin.js`. */
+    const NS = 'dsh-worktree-bar'
+    /**
+     * Host route prefix registered by `lib/plugin.js`.
+     *
+     * It keeps the original spelling while the package carries its new name:
+     * this path is the two halves' shared contract, and the Client is served
+     * fresh on every page load while the Host module lives until a restart, so
+     * renaming it would leave them disagreeing in between.
+     */
     const API = '/dsh-worktree/api/'
     /** Poll interval when the Host config names none. */
     const DEFAULT_POLL_MS = 15000
@@ -193,7 +200,7 @@ window.__ModuleLoader__.load({
       }
       if (body !== null && typeof body === 'object' && body.ok === true) return body.value
       const code = body?.error?.code ?? `http-${response.status}`
-      const message = body?.error?.message ?? `dsh-worktree: ${method} failed with HTTP ${response.status}`
+      const message = body?.error?.message ?? `dsh-worktree-bar: ${method} failed with HTTP ${response.status}`
       throw new ApiError(code, message)
     }
 
@@ -400,7 +407,7 @@ window.__ModuleLoader__.load({
       }, [notice])
 
       React.useEffect(() => {
-        if (state.phase === 'error') console.warn('dsh-worktree: repository context unavailable —', state.message)
+        if (state.phase === 'error') console.warn('dsh-worktree-bar: repository context unavailable —', state.message)
       }, [state])
 
       const report = React.useCallback((level, text) => {
@@ -665,17 +672,17 @@ window.__ModuleLoader__.load({
             releaseEn()
             releaseZh()
           }
-        }, 'dsh-worktree: dictionaries')
+        }, 'dsh-worktree-bar: dictionaries')
 
         ctx.effect(() => {
           const tag = document.createElement('style')
-          tag.dataset.plugin = 'dsh-worktree'
+          tag.dataset.plugin = 'dsh-worktree-bar'
           tag.textContent = CSS
           document.head.appendChild(tag)
           return () => {
             tag.remove()
           }
-        }, 'dsh-worktree: styles')
+        }, 'dsh-worktree-bar: styles')
 
         /**
          * Register a directory as a Workspace and open a Session in it.

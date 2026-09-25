@@ -1,18 +1,18 @@
 {
-  "name": "dsh-worktree",
+  "name": "dsh-worktree-bar",
   "version": "0.1.0",
   "description": "Workspace and branch status above the composer, a start-screen git worktree checkbox, and per-project worktree preparation — for the DeepSeek Harness Web UI.",
   "type": "module",
   "main": "./lib/plugin.js",
   "license": "MIT",
   "author": "Hermannmayer",
-  "homepage": "https://github.com/Hermannmayer/dsh-worktree#readme",
+  "homepage": "https://github.com/Hermannmayer/dsh-worktree-bar#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hermannmayer/dsh-worktree.git"
+    "url": "git+https://github.com/Hermannmayer/dsh-worktree-bar.git"
   },
   "bugs": {
-    "url": "https://github.com/Hermannmayer/dsh-worktree/issues"
+    "url": "https://github.com/Hermannmayer/dsh-worktree-bar/issues"
   },
   "engines": {
     "node": ">=20",

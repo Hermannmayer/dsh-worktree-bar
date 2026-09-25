@@ -128,7 +128,7 @@ async function main() {
   await run('git', ['commit', '-m', 'init'], { cwd: repo })
 
   try {
-    assert(name === 'dsh-worktree', 'exports the plugin name')
+    assert(name === 'dsh-worktree-bar', 'exports the plugin name')
     assert(inject.includes('webServer') && inject.includes('sessions'), 'declares its required services')
 
     console.log('admission through the harness browser session')

@@ -3,7 +3,7 @@ description: "Repository context row above the composer for the Harness Web UI: 
 kind: "package-reference"
 ---
 
-# dsh-worktree
+# dsh-worktree-bar
 
 English | [中文](README.zh.md)
 
@@ -16,7 +16,7 @@ This bundle adds one row above the composer, and the row changes with the Sessio
 
 A repository declares for itself what a usable worktree needs — a virtualenv, a database directory, a local cache — in its own convention file. The plugin hardcodes no project's layout, so the same bundle serves a Python project that must run its app from a worktree, a Node project that only needs `npm install`, and a repository that needs nothing at all.
 
-The bundle is standalone: no runtime dependency, no build step, and no coupling to any other plugin. It is a Cordis bundle (`dsh.bundle.patch`) with a Host half and a browser half, and its Git layer (`dsh-worktree/git`) is a plain module other plugins may import.
+The bundle is standalone: no runtime dependency, no build step, and no coupling to any other plugin. It is a Cordis bundle (`dsh.bundle.patch`) with a Host half and a browser half, and its Git layer (`dsh-worktree-bar/git`) is a plain module other plugins may import.
 
 ## Table of Contents
 
@@ -37,10 +37,10 @@ The bundle is standalone: no runtime dependency, no build step, and no coupling 
 With the harness CLI, straight from GitHub:
 
 ```bash
-dsh plugin --profile desktop install Hermannmayer/dsh-worktree
+dsh plugin --profile desktop install Hermannmayer/dsh-worktree-bar
 ```
 
-That is the supported path for anyone else: the CLI resolves `owner/repo` through pnpm in the profile, installs the bundle, and the row is available after a restart. Replace `desktop` with the profile you use.
+That is the supported path for anyone else: the CLI resolves `owner/repo` through pnpm in the profile, installs the bundle, and the row is available after a restart. Replace `desktop` with the profile you use. Without a global CLI, the same command runs as `npx @deepseek-ai/dsh plugin --profile desktop install Hermannmayer/dsh-worktree-bar`.
 
 Inside a session, the `plugin_manager` tool installs the same bundle from a local checkout:
 
@@ -48,7 +48,7 @@ Inside a session, the `plugin_manager` tool installs the same bundle from a loca
 plugin_manager action=install_bundle target=<absolute path to this package>
 ```
 
-Both links the directory into the profile (`link:` in the profile's `package.json` and `dsh-worktree` in `dsh.profile.bundles`), so the sources stay wherever you keep them and the profile is not hand-edited. The row id is `worktree`; the Client half needs no installation of its own.
+Both links the directory into the profile (`link:` in the profile's `package.json` and `dsh-worktree-bar` in `dsh.profile.bundles`), so the sources stay wherever you keep them and the profile is not hand-edited. The row id is `worktree`; the Client half needs no installation of its own.
 
 Editing the sources afterwards follows the harness rule for every plugin: a **Client** change is served to the page on the next page load, while a **Host** change requires a restart, because a replaced package loads a fresh JavaScript module generation only at startup.
 
@@ -59,8 +59,8 @@ This package also declares `peerDependencies` on the harness packages it uses, a
 The package has no runtime or development dependency, so a checkout needs nothing installed:
 
 ```bash
-git clone https://github.com/Hermannmayer/dsh-worktree.git
-cd dsh-worktree
+git clone https://github.com/Hermannmayer/dsh-worktree-bar.git
+cd dsh-worktree-bar
 npm test     # four suites: git layer, seeding, host routes, client rendering
 npm run check   # node --check on every source file
 ```
@@ -146,7 +146,7 @@ Example override:
 
 ```yaml
 - id: worktree
-  name: 'dsh-worktree'
+  name: 'dsh-worktree-bar'
   config:
     worktreeDir: ../worktrees
     conventionFile: .worktree-setup.json
@@ -176,7 +176,7 @@ The route speaks for the operator only if it passes `ctx.connection.admit()`, th
 | Path | Role |
 |---|---|
 | [`lib/plugin.js`](lib/plugin.js) | Host row: `apply`, the `/dsh-worktree/api` route table, admission, Session directory resolution, OS hand-offs. |
-| [`lib/git.js`](lib/git.js) | Context-free Git layer: repository info, worktree list/create/remove, the project convention, seeding, remote URL and name generation. Importable as `dsh-worktree/git`. |
+| [`lib/git.js`](lib/git.js) | Context-free Git layer: repository info, worktree list/create/remove, the project convention, seeding, remote URL and name generation. Importable as `dsh-worktree-bar/git`. |
 | [`client.js`](client.js) | Browser half: the `conversation.input.dock` entry — start-screen checkbox, conversation status row, menus, locale dictionary. |
 | [`index.js`](index.js) | Re-export of the Host row, for readers who expect the conventional entry file. |
 | [`test/*.test.mjs`](test) | Git layer, seeding, Host route table and Client rendering, runnable with `npm test` (no framework). |
@@ -199,6 +199,18 @@ Sessions are addressed by id and the directory is resolved on the Host — the l
 
 The harness fixes a Session's working directory at creation: the Workspace registry cannot move a live Session, and `ctx.sessions.create({ workspaceId })` is the only way to put one in a directory. The start screen is therefore the only place where "work in a worktree" can mean "this Session", and the plugin reads `session.blank`/`session.promptAttempted` from the slot's own `useSession` hook to know it is on that screen. Checking the box does the two steps the harness allows: create the checkout, then open a Session in it. Once a prompt exists the Session cannot move, so the row becomes information — and removal moves to the branch menu, which exists in both modes.
 
+### What keeps the original spelling, and why
+
+The package is `dsh-worktree-bar`, but three names are deliberately unchanged because changing them would break something a person already has:
+
+| Name | Why it stays |
+|---|---|
+| The route path `POST /dsh-worktree/api/<method>` | It is the Client's and the Host's shared contract. The Client half is served fresh on every page load while the Host module lives until a restart, so renaming the prefix would leave the two halves disagreeing in between. |
+| The convention file `dsh-worktree.json` | It is a file in *your* repository, already committed or about to be. Its name describes the concept, not this package, and a project should not have to rename a file because a plugin changed its package name. |
+| The `.git/info/exclude` markers (`# dsh-worktree`) and the `dshwt-` class prefix | They are already written into repositories and stylesheets; renaming them would only produce duplicate blocks, and they are invisible to users. |
+
+Everything a person types or reads — the package name, the install command, the repository URL, the locale namespace, the `dsh-worktree-bar/git` subpath, the `info` identity — carries the new name.
+
 ### Layout anchoring
 
 `git rev-parse --show-toplevel` answers with the checkout a directory sits in, which inside a linked worktree is that worktree. Every layout decision therefore anchors on the **main** checkout — `git worktree list` guarantees it is listed first — so a Session already inside a worktree creates a sibling in the same place, and `repoRoot` in `info` always means the repository the user launched from. Identity comparisons use a real-path canonical form, because a Windows short name (`C:\PROGRA~1`) and the long name are the same directory.
@@ -209,7 +221,7 @@ A junction is a directory reparse point: `git worktree remove` deletes the check
 
 ### Client registration
 
-The browser half registers a lazy module (`dsh.client.platform: web`, `immediately: true`) and contributes through `ctx.slots.inject('conversation.input.dock', …)` at `order: 30`, after the shipped todo, goal and queue entries. It sizes itself with the composer's own layout variables (`--dsh-composer-card-max-width`, `--dsh-composer-side-clearance`, `--dsh-composer-dock-inset`) so the row lines up with the card instead of spanning the conversation column. It waits for `slots`, `locale`, `workspaces` and `uiWorkspace`, and imports no Harness Client package: React comes from the module table, colors come only from `--dsw-alias-*` tokens, and copy is registered in its own `dsh-worktree` locale namespace (`en`, `zh`). The Host row exposes `dsh-worktree/git` for other plugins; no other plugin is required.
+The browser half registers a lazy module (`dsh.client.platform: web`, `immediately: true`) and contributes through `ctx.slots.inject('conversation.input.dock', …)` at `order: 30`, after the shipped todo, goal and queue entries. It sizes itself with the composer's own layout variables (`--dsh-composer-card-max-width`, `--dsh-composer-side-clearance`, `--dsh-composer-dock-inset`) so the row lines up with the card instead of spanning the conversation column. It waits for `slots`, `locale`, `workspaces` and `uiWorkspace`, and imports no Harness Client package: React comes from the module table, colors come only from `--dsw-alias-*` tokens, and copy is registered in its own `dsh-worktree-bar` locale namespace (`en`, `zh`). The Host row exposes `dsh-worktree-bar/git` for other plugins; no other plugin is required.
 
 </details>
 

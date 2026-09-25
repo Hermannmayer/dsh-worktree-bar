@@ -1,4 +1,4 @@
-# dsh-worktree bundle patch.
+# dsh-worktree-bar bundle patch.
 #
 # The bundle channel mounts this plugin by appending the row below to the
 # profile's composed tree. Nothing else is required: the package has no runtime
@@ -21,4 +21,4 @@
 #
 - insert:
     - id: worktree
-      name: 'dsh-worktree'
+      name: 'dsh-worktree-bar'
