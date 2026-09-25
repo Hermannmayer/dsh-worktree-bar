@@ -9,6 +9,7 @@
  */
 
 import { execFile } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -119,10 +120,11 @@ async function main() {
   console.log('removal never follows the links')
   const removed = await removeWorktree({ cwd: repo, path: created.path, deleteBranch: true })
   assert(removed.branchDeleted === true, 'removes the worktree and its branch without force')
-  // git deletes files but not the reparse points: both top-level junctions must
-  // go, and the empty worktree directory must not survive either.
-  assert(removed.linksRemoved >= 2, `clears the directory links git leaves behind (${removed.linksRemoved})`)
+  // Whether git removes the directory links itself or leaves them to the
+  // sweeper depends on its version and platform, so assert the outcome both
+  // paths must reach: no leftovers, and no worktree directory left behind.
   assert(removed.leftovers.length === 0, `reports no leftovers (${removed.leftovers.join(', ')})`)
+  assert(!existsSync(created.path), 'the worktree directory is gone, links and all')
   const leftovers = await readdir(join(repo, '.dsh', 'worktrees')).catch(() => [])
   assert(!leftovers.includes('seed-box'), 'leaves no empty worktree directory behind')
   const survives = await readFile(join(repo, 'database', 'user.db'), 'utf8')
