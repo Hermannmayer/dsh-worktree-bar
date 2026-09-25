@@ -34,15 +34,25 @@ kind: "package-reference"
 
 ### 安装
 
-用 `plugin_manager` 工具安装到某个 profile，target 传本包的绝对目录：
+用 Harness CLI 直接从 GitHub 安装：
+
+```bash
+dsh plugin --profile desktop install Hermannmayer/dsh-worktree
+```
+
+这是给其他使用者的推荐路径：CLI 在 profile 目录中通过 pnpm 解析 `owner/repo`、安装该 bundle，重启后即可使用。把 `desktop` 换成你自己的 profile 名。
+
+在会话里也可以用 `plugin_manager` 工具从本地检出安装同一个 bundle：
 
 ```text
 plugin_manager action=install_bundle target=<本包的绝对路径>
 ```
 
-安装会把该目录 link 进 profile（profile 的 `package.json` 里出现 `link:`，`dsh.profile.bundles` 追加 `dsh-worktree`），源码可以继续放在任何位置，profile 不需要手改。行 id 是 `worktree`；浏览器半边不需要单独安装。
+两种方式都会把该目录 link 进 profile（profile 的 `package.json` 里出现 `link:`，`dsh.profile.bundles` 追加 `dsh-worktree`），源码可以继续放在任何位置，profile 不需要手改。行 id 是 `worktree`；浏览器半边不需要单独安装。
 
 之后修改源码遵循 Harness 对所有插件的规则：**Client** 改动在下次页面加载时生效，**Host** 改动需要重启——被替换的包只有在启动时才会加载新的 JavaScript 模块。
+
+本包只声明 `peerDependencies`（它所使用的 Harness 包），没有任何 `dependencies`：这些平台由 Harness 提供，自带一份私有副本会遮蔽宿主自身的模块身份。
 
 ### 开发
 

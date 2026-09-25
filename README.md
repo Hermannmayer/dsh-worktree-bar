@@ -34,15 +34,25 @@ The bundle is standalone: no runtime dependency, no build step, and no coupling 
 
 ### Install
 
-Install the bundle into a profile with the `plugin_manager` tool, passing this package's absolute directory as the target:
+With the harness CLI, straight from GitHub:
+
+```bash
+dsh plugin --profile desktop install Hermannmayer/dsh-worktree
+```
+
+That is the supported path for anyone else: the CLI resolves `owner/repo` through pnpm in the profile, installs the bundle, and the row is available after a restart. Replace `desktop` with the profile you use.
+
+Inside a session, the `plugin_manager` tool installs the same bundle from a local checkout:
 
 ```text
 plugin_manager action=install_bundle target=<absolute path to this package>
 ```
 
-Installation links the directory into the profile (`link:` in the profile's `package.json` and `dsh-worktree` in `dsh.profile.bundles`), so the sources stay wherever you keep them and the profile is not hand-edited. The row id is `worktree`; the Client half needs no installation of its own.
+Both links the directory into the profile (`link:` in the profile's `package.json` and `dsh-worktree` in `dsh.profile.bundles`), so the sources stay wherever you keep them and the profile is not hand-edited. The row id is `worktree`; the Client half needs no installation of its own.
 
 Editing the sources afterwards follows the harness rule for every plugin: a **Client** change is served to the page on the next page load, while a **Host** change requires a restart, because a replaced package loads a fresh JavaScript module generation only at startup.
+
+This package also declares `peerDependencies` on the harness packages it uses, and no `dependencies`: the platforms it sits between are supplied by the harness, and shipping a private copy of one would shadow the host's own module identity.
 
 ### Develop
 

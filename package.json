@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Workspace and branch status above the composer, a start-screen git worktree checkbox, and per-project worktree preparation — for the DeepSeek Harness Web UI.",
   "type": "module",
+  "main": "./lib/plugin.js",
   "license": "MIT",
   "author": "Hermannmayer",
   "homepage": "https://github.com/Hermannmayer/dsh-worktree#readme",
@@ -16,6 +17,24 @@
   "engines": {
     "node": ">=20",
     "dsh": ">=0.1.7-rc.1 <0.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-client-connection": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-locale": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-conversation": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-slots": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-workspace": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-host-webserver": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-session": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-workspace": "^0.1.7-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-client-connection": {
+      "optional": true
+    }
   },
   "keywords": [
     "dsh",
@@ -42,6 +61,21 @@
     "./locale/*.json": "./locale/*.json"
   },
   "icon": "./icon.svg",
+  "disclosure": {
+    "cloud": false,
+    "network": [],
+    "offlineMode": true,
+    "apiKeys": [],
+    "permissions": [
+      "filesystem: create and remove git worktrees inside the repository",
+      "filesystem: append the worktree paths to .git/info/exclude",
+      "process: run git with argument arrays, no shell",
+      "process: run the project's own setup command when dsh-worktree.json declares one",
+      "os: reveal a directory, open a terminal, or open a URL, only on a click"
+    ],
+    "jurisdiction": [],
+    "retention": "none"
+  },
   "files": [
     "index.js",
     "client.js",
