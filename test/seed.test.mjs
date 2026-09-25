@@ -96,10 +96,29 @@ async function main() {
   const status = await run('git', ['status', '--porcelain'], { cwd: created.path })
   assert(status.stdout.trim().startsWith('?? setup.log') || status.stdout.trim() === '?? setup.log', `the seeded worktree is otherwise clean (${JSON.stringify(status.stdout.trim())})`)
 
-  console.log('removal never follows the links')
+  console.log('connected paths do not appear as changes')
+  // On POSIX a directory symlink is a FILE to git, so the project's own
+  // `database/` rule does not match it: without the worktree's exclude the link
+  // shows as untracked, and git then refuses to remove the worktree as dirty.
+  assert(Array.isArray(created.seeded.excluded), 'creation reports the excluded connected paths')
+  assert(created.seeded.excluded.some(pattern => pattern === '/.venv'), `excludes the linked virtualenv (${created.seeded.excluded.join(', ')})`)
+  assert(created.seeded.excluded.some(pattern => pattern === '/database'), 'excludes the linked database directory')
+  assert(!created.seeded.excluded.some(pattern => pattern.startsWith('/data/terminology')), 'never excludes a tracked path')
+  const linkedStatus = await run('git', ['status', '--porcelain'], { cwd: created.path })
+  assert(linkedStatus.stdout.trim() === '?? setup.log', `connected paths are not reported as changes (${JSON.stringify(linkedStatus.stdout.trim())})`)
+
+  console.log('connected paths do not block removal')
+  // This is the cross-platform half of the guarantee. On POSIX a directory
+  // symlink is a FILE to git, so the project's own `database/` rule does not
+  // match it, and without the exclude git refuses to remove the worktree as
+  // dirty. Removing the one real untracked file must therefore be enough.
   await rm(join(created.path, 'setup.log'), { force: true })
+  const statusAfter = await run('git', ['status', '--porcelain'], { cwd: created.path })
+  assert(statusAfter.stdout.trim() === '', `only the real untracked file was left (${JSON.stringify(statusAfter.stdout.trim())})`)
+
+  console.log('removal never follows the links')
   const removed = await removeWorktree({ cwd: repo, path: created.path, deleteBranch: true })
-  assert(removed.branchDeleted === true, 'removes the worktree and its branch')
+  assert(removed.branchDeleted === true, 'removes the worktree and its branch without force')
   // git deletes files but not the reparse points: both top-level junctions must
   // go, and the empty worktree directory must not survive either.
   assert(removed.linksRemoved >= 2, `clears the directory links git leaves behind (${removed.linksRemoved})`)
